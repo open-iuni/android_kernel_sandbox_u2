@@ -70,7 +70,6 @@
 
 //#define GN_ESD_PROTECT
 //#define GN_TP_INVALID_TEST
-#define TP_GLOVE_SUPPORT
 
 /*
  * struct synaptics_rmi4_fn_desc - function descriptor fields in PDT
@@ -211,10 +210,6 @@ struct synaptics_rmi4_data {
 #ifdef GN_TP_INVALID_TEST
        struct delayed_work gn_test_work;
        struct workqueue_struct * gn_test_queue;
-#endif
-#ifdef TP_GLOVE_SUPPORT
-       struct delayed_work gn_glove_work;
-       struct workqueue_struct * gn_glove_queue;
 #endif
 #ifdef CONFIG_HAS_EARLYSUSPEND
 	struct early_suspend early_suspend;

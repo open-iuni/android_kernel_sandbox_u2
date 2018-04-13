@@ -54,6 +54,8 @@
 #define BLOCK_DATA_OFFSET 2
 
 #define NAME_BUFFER_SIZE 128
+// IUNI U2 add for distinguish lcd module
+u8 g_panel_modle = 0;
 
 enum falsh_config_area {
 	UI_CONFIG_AREA = 0x00,
@@ -98,9 +100,9 @@ enum image_file_option {
 #define POLLING_MODE 0
 
 #define SLEEP_TIME_US 50
-
+#ifdef TP_GLOVE_SUPPORT
 extern unsigned char tp_fw_update_compelete;
-
+#endif
 static ssize_t fwu_sysfs_show_image(struct file *data_file,
 		struct kobject *kobj, struct bin_attribute *attributes,
 		char *buf, loff_t pos, size_t count);
@@ -686,8 +688,8 @@ static enum flash_area fwu_go_nogo(struct image_header *header)
 		}
 	}
 
-	printk("tpd Device firmware id %d, .img firmware id %d\n",
-			deviceFirmwareID,
+	printk("%s,tpd Device firmware id %d, .img firmware id %d\n",
+			__func__,deviceFirmwareID,
 			(unsigned int)imageFirmwareID);
 	if (imageFirmwareID > deviceFirmwareID) {
 		flash_area = UI_FIRMWARE;
@@ -1295,29 +1297,34 @@ static int fwu_start_reflash(void)
 	const struct firmware *fw_entry = NULL;
 	struct f01_device_status f01_device_status;
 	enum flash_area flash_area;
-       unsigned char product_id[10] = {0};
+    unsigned char product_id[10] = {0};
 
-	printk("tpd %s: Start of reflash process\n", __func__);
-
+	printk("%s: Start of reflash process\n", __func__);
+    //Read product ID
+     retval = fwu->rmi4_data->i2c_read(fwu->rmi4_data, fwu->rmi4_data->f01_query_base_addr + 11, product_id, 5);
+     if (retval < 0) {
+         printk("%s firmware tpd: read product id failed...\n",__func__);
+     }else {
+		printk("%s product_id = %s \n",__func__, product_id);
+     }
 	if (!fwu->rmi4_data->board->fw_image_name1 
             && !fwu->rmi4_data->board->fw_image_name2
             && !fwu->rmi4_data->board->fw_image_name3
             && !fwu->rmi4_data->board->fw_image_name4
             && !fwu->rmi4_data->board->fw_image_name5
             && !fwu->rmi4_data->board->fw_image_name6
-            && !fwu->rmi4_data->board->fw_image_name7
-            && !fwu->rmi4_data->board->fw_image_name8
-            && !fwu->rmi4_data->board->fw_image_name9
-            && !fwu->rmi4_data->board->fw_image_name10
-            && !fwu->rmi4_data->board->fw_image_name11) {
+            && !fwu->rmi4_data->board->fw_image_name7) {
 		retval = 0;
 		dev_err(&fwu->rmi4_data->i2c_client->dev,
 			"tpd Firmware image name not given, skipping update\n");
 		goto exit;
 	}
 
-	if (fwu->ext_data_source)
+	if (fwu->ext_data_source) {
 		fw_image = fwu->ext_data_source;
+		printk("%s liudj fwu->ext_data_source \n", __func__);
+		dev_err(&fwu->rmi4_data->i2c_client->dev,"tpd %s: fwu->ext_data_source\n",__func__);
+	}
 	else {
 		fwu->firmware_name = kcalloc(NAME_BUFFER_SIZE,
 			sizeof(char), GFP_KERNEL);
@@ -1329,60 +1336,44 @@ static int fwu_start_reflash(void)
 			goto memory_exit;
 		}
 
-             //Read product ID
-             retval = fwu->rmi4_data->i2c_read(fwu->rmi4_data, fwu->rmi4_data->f01_query_base_addr + 11, product_id, 5);
-             if (retval < 0) {
-                 printk("tpd firmware tpd: read product id failed...\n");
-             }else {
-                 if (!strncmp(product_id, "OW", 2)) {
-                     printk("tpd firmware: This is OFG White Module.\n");
+         //Read product ID
+         retval = fwu->rmi4_data->i2c_read(fwu->rmi4_data, fwu->rmi4_data->f01_query_base_addr + 11, product_id, 5);
+         if (retval < 0) {
+             printk("%s : read product id failed...\n",__func__);
+        }else {
+                printk("%s product_id = %s \n",__func__, product_id);      
+                if (!strncmp(product_id, "WWS", 2)) {
+                     printk("%s firmware: This is WWS Module.\n",__func__);
                      snprintf(fwu->firmware_name, NAME_BUFFER_SIZE, "%s",
-			fwu->rmi4_data->board->fw_image_name1);
+                fwu->rmi4_data->board->fw_image_name1);
+                 } else if (!strncmp(product_id, "WBS", 2)) {
+                     printk("%s firmware: This is WBS Module.\n",__func__);
+                     snprintf(fwu->firmware_name, NAME_BUFFER_SIZE, "%s",
+                fwu->rmi4_data->board->fw_image_name2);
                  } else if (!strncmp(product_id, "OB", 2)) {
-                     printk("tpd firmware: This is OFG Black Module.\n");
+                     printk("%s firmware: This is OFG Black Module.\n",__func__);
                      snprintf(fwu->firmware_name, NAME_BUFFER_SIZE, "%s",
-			fwu->rmi4_data->board->fw_image_name2);
-                 } else if (!strncmp(product_id, "OC", 2)) {
-                     printk("tpd firmware: This is Truly White Module.\n");
+                fwu->rmi4_data->board->fw_image_name3);
+				} else if (!strncmp(product_id, "OW", 2)) {
+                     printk("%s firmware: This is OFG White Module.\n",__func__);
                      snprintf(fwu->firmware_name, NAME_BUFFER_SIZE, "%s",
-			fwu->rmi4_data->board->fw_image_name3);
-                 } else if (!strncmp(product_id, "TW", 2)) {
-                     printk("tpd firmware: This is Truly Black Module.\n");
+                fwu->rmi4_data->board->fw_image_name4);
+				} else if (!strncmp(product_id, "WWJ", 2)) {
+                     printk("%s firmware: This is WWJ Module.\n",__func__);
                      snprintf(fwu->firmware_name, NAME_BUFFER_SIZE, "%s",
-			fwu->rmi4_data->board->fw_image_name4);
-                 } else if (!strncmp(product_id, "TB", 2)) {
-                     printk("tpd firmware: This is Truly Black Module.\n");
+                fwu->rmi4_data->board->fw_image_name5);
+				} else if (!strncmp(product_id, "WBJ", 2)) {
+                     printk("%s firmware: This is WBJ Module.\n",__func__);
                      snprintf(fwu->firmware_name, NAME_BUFFER_SIZE, "%s",
-			fwu->rmi4_data->board->fw_image_name5);
-                 } else if (!strncmp(product_id, "TC", 2)) {
-                     printk("tpd firmware: This is Truly Black Module.\n");
+                fwu->rmi4_data->board->fw_image_name6);
+                 } else if (!strncmp(product_id, "OBG", 2)) {
+                     printk("%s firmware: This is OBG Module.\n",__func__);
                      snprintf(fwu->firmware_name, NAME_BUFFER_SIZE, "%s",
-			fwu->rmi4_data->board->fw_image_name6);
-                 } else if (!strncmp(product_id, "TR", 2)) {
-                     printk("tpd firmware: This is Truly Black Module.\n");
-                     snprintf(fwu->firmware_name, NAME_BUFFER_SIZE, "%s",
-			fwu->rmi4_data->board->fw_image_name7);
-                 } else if (!strncmp(product_id, "TO", 2)) {
-                     printk("tpd firmware: This is Truly Black Module.\n");
-                     snprintf(fwu->firmware_name, NAME_BUFFER_SIZE, "%s",
-			fwu->rmi4_data->board->fw_image_name8);
-                 } else if (!strncmp(product_id, "TY", 2)) {
-                     printk("tpd firmware: This is Truly Black Module.\n");
-                     snprintf(fwu->firmware_name, NAME_BUFFER_SIZE, "%s",
-			fwu->rmi4_data->board->fw_image_name9);
-                 } else if (!strncmp(product_id, "TG", 2)) {
-                     printk("tpd firmware: This is Truly Black Module.\n");
-                     snprintf(fwu->firmware_name, NAME_BUFFER_SIZE, "%s",
-			fwu->rmi4_data->board->fw_image_name10);
-                 } else {
-                     printk("tpd firmware: This is Unknown Module.\n");
-                     snprintf(fwu->firmware_name, NAME_BUFFER_SIZE, "%s",
-			fwu->rmi4_data->board->fw_image_name11);
-                 }
-             }
-
-		//snprintf(fwu->firmware_name, NAME_BUFFER_SIZE, "%s",
-			//fwu->rmi4_data->fw_image_name);
+                fwu->rmi4_data->board->fw_image_name7);
+                 }  else {
+                     printk("%s firmware: This is Unknown Module.\n",__func__);           
+                }
+            }
 		dev_info(&fwu->rmi4_data->i2c_client->dev,
 			"tpd %s: Requesting firmware image %s\n",
 			__func__, fwu->firmware_name);
@@ -1399,8 +1390,8 @@ static int fwu_start_reflash(void)
 			goto exit;
 		}
 
-              printk("tpd %s: Firmware image size = %d\n",
-				__func__, fw_entry->size);
+        printk("tpd %s:  %s Product_id=%s  Firmware image size = %d \n",
+				__func__, fwu->firmware_name, product_id, fw_entry->size);
 
 		fw_image = fw_entry->data;
 	}
@@ -1476,7 +1467,9 @@ static int fwu_start_reflash(void)
 exit:
 	kfree(fwu->firmware_name);
 memory_exit:
-       tp_fw_update_compelete = 1;
+//#ifdef TP_GLOVE_SUPPORT
+       //tp_fw_update_compelete = 1;
+//#endif
 	return retval;
 }
 
@@ -1915,6 +1908,27 @@ static void __exit rmi4_fw_update_module_exit(void)
 	wait_for_completion(&remove_complete);
 	return;
 }
+
+// IUNI U2 (U810) - add for distinguish lcd module
+static int __init board_panel_setup(char *serialno)
+{
+	char *src = serialno;
+    if(!strcmp(src,"1:dsi:0:qcom,mdss_dsi_sharp_r63417_1080p_cmd"))
+    {
+        g_panel_modle = 1;
+        printk("%s board_panel_modle sharp g_panel_modle=%d !\n", __func__, g_panel_modle);
+    }
+
+    if(!strcmp(src,"1:dsi:0:qcom,mdss_dsi_jdi_r63417_1080p_cmd"))
+    {
+        g_panel_modle = 2;
+        printk("%s board_panel_modle JDI g_panel_modle=%d !\n", __func__, g_panel_modle);
+    }
+    printk("%s board_panel_setup  %s\n", __func__, src);
+	return 1;
+}
+__setup("mdss_mdp.panel=", board_panel_setup);
+// IUNI U2 (U810) - add for distinguish lcd module
 
 module_init(rmi4_fw_update_module_init);
 module_exit(rmi4_fw_update_module_exit);

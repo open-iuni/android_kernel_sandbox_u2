@@ -25,7 +25,9 @@
 	};
 
 	qcom,mdss_dsi@fd922800 {
-		qcom,dsi-pref-prim-pan = <&dsi_tosh_720_vid>;
+		//U2 Panel Begin
+		qcom,dsi-pref-prim-pan = <&dsi_sharp_r63417_1080_cmd>;
+		//U2 Panel End
 	};
 
 	qcom,mdss_mdp@fd900000 {

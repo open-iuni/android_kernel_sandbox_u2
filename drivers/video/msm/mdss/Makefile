@@ -44,3 +44,6 @@ obj-$(CONFIG_FB_MSM_QPIC_ILI_QVGA_PANEL) += qpic_panel_ili_qvga.o
 obj-$(CONFIG_FB_MSM_MDSS) += mdss_fb.o
 
 obj-$(CONFIG_FB_MSM_MDSS_DSI_CTRL_STATUS) += mdss_dsi_status.o
+
+# Gionee drivers
+obj-$(CONFIG_GN_BACKLIGHT_LM3630_U810) += lm3630_u810.o

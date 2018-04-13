@@ -67,19 +67,27 @@
 
 		qcom,pon_2 {
 			qcom,pon-type = <1>;
-			qcom,support-reset = <1>;
+			// U2 Power Begin
+			//qcom,support-reset = <1>;
+			// U2 Power End
 			qcom,pull-up = <1>;
-			qcom,s1-timer = <0>;
-			qcom,s2-timer = <2000>;
-			qcom,s2-type = <1>;
+			// U2 Power Begin
+			//qcom,s1-timer = <0>;
+			//qcom,s2-timer = <2000>;
+			//qcom,s2-type = <1>;
+			// U2 Power End
 			linux,code = <114>;
-			qcom,use-bark;
+			// U2 Power Begin
+			//qcom,use-bark;
+			// U2 Power End
 		};
 
 		qcom,pon_3 {
 			qcom,pon-type = <3>;
 			qcom,support-reset = <1>;
-			qcom,s1-timer = <6720>;
+			// U2 Power Begin
+			qcom,s1-timer = <4480>; //6720
+			// U2 Power End
 			qcom,s2-timer = <2000>;
 			qcom,s2-type = <7>;
 			qcom,pull-up = <1>;
@@ -126,7 +134,9 @@
 		qcom,v-cutoff-uv = <3400000>;
 		qcom,max-voltage-uv = <4200000>;
 		qcom,r-conn-mohm = <0>;
-		qcom,shutdown-soc-valid-limit = <100>;
+		// U2 Power Begin
+		qcom,shutdown-soc-valid-limit = <20>; //100
+		// U2 Power End
 		qcom,adjust-soc-low-threshold = <15>;
 		qcom,ocv-voltage-high-threshold-uv = <3750000>;
 		qcom,ocv-voltage-low-threshold-uv = <3650000>;
@@ -200,13 +210,17 @@
 		#size-cells = <1>;
 		status = "disabled";
 
-		qcom,vddmax-mv = <4200>;
-		qcom,vddsafe-mv = <4230>;
-		qcom,vinmin-mv = <4300>;
-		qcom,ibatmax-ma = <1500>;
+		// U2 Power Begin
+		qcom,vddmax-mv = <4350>; //4200
+		qcom,vddsafe-mv = <4380>; //4230
+		qcom,vinmin-mv = <4450>; //4300
+		qcom,ibatmax-ma = <1000>; //1500
+		// U2 Power End
 		qcom,ibatterm-ma = <100>;
-		qcom,ibatsafe-ma = <1500>;
-		qcom,thermal-mitigation = <1500 700 600 325>;
+		// U2 Power Begin
+		qcom,ibatsafe-ma = <1000>; //1500
+		qcom,thermal-mitigation = <1000 700 600 325>; //1500 700 600 325
+		// U2 Power End
 		qcom,cool-bat-decidegc = <100>;
 		qcom,cool-bat-mv = <4100>;
 		qcom,ibatmax-warm-ma = <350>;
@@ -215,11 +229,16 @@
 		qcom,ibatmax-cool-ma = <350>;
 		qcom,vbatdet-delta-mv = <100>;
 		qcom,resume-soc = <99>;
-		qcom,tchg-mins = <150>;
+		// U2 Power Begin
+		qcom,tchg-mins = <512>; //150
+		// U2 Power End
 		qcom,chg-vadc = <&pm8941_vadc>;
 		qcom,chg-iadc = <&pm8941_iadc>;
 		qcom,chg-adc_tm = <&pm8941_adc_tm>;
 		qcom,ibat-calibration-enabled;
+		// U2 Power Begin
+		qcom,ovp-monitor-en;
+		// U2 Power End
 
 		pm8941_chg_chgr: qcom,chgr@1000 {
 			status = "disabled";
@@ -289,7 +308,10 @@
 
 			interrupt-names =	"coarse-det-usb",
 						"usbin-valid",
-						"chg-gone";
+						"chg-gone",
+						// U2 Power Begin
+						"usb-ocp";
+						// U2 Power End
 		};
 
 		qcom,dc-chgpth@1400 {
@@ -1425,6 +1447,16 @@
 		      <0xb042 0x7e>;
 		reg-names = "qpnp-lpg-channel-base", "qpnp-lpg-lut-base";
 		qcom,channel-id = <7>;
+		// U2 Power Begin
+		qcom,period = <6000000>;
+		qcom,mode-select = <0>;
+		status = "okay";
+
+		qcom,pwm {
+			qcom,duty = <4000000>;
+			label = "pwm";
+		};
+		// U2 Power End
 	};
 
 	pwm@e400 {

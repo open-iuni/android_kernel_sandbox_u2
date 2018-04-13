@@ -16,38 +16,74 @@
 		status = "okay";
 		qcom,rgb_0 {
 			label = "rgb";
-			linux,name = "led:rgb_red";
+			// U2 LED Begin
+			linux,name = "red"; //"led:rgb_red";
+			// U2 LED End
 			qcom,mode = "pwm";
 			qcom,pwm-channel = <6>;
 			qcom,pwm-us = <1000>;
 			qcom,max-current = <12>;
 			qcom,default-state = "off";
 			qcom,id = <3>;
-			linux,default-trigger =
-				"battery-charging";
+			// U2 LED Begin
+			/*linux,default-trigger =
+				"battery-charging";*/
+			qcom,use-blink;
+			qcom,start-idx = <1>;
+			qcom,duty-pcts = [95 95 95 95 95
+					95 95 95 95 95];
+			qcom,pause-lo = <0>;
+			qcom,pause-hi = <0>;
+			qcom,ramp-step-ms = <500>;
+			qcom,lut-flags = <3>;
+			// U2 LED End
 		};
 
 		qcom,rgb_1 {
 			label = "rgb";
-			linux,name = "led:rgb_green";
+			// U2 LED Begin
+			linux,name = "green";//"led:rgb_green";
+			// U2 LED End
 			qcom,mode = "pwm";
 			qcom,pwm-channel = <5>;
 			qcom,pwm-us = <1000>;
 			qcom,max-current = <12>;
 			qcom,default-state = "off";
 			qcom,id = <4>;
-			linux,default-trigger = "battery-full";
+			// U2 LED Begin
+			//linux,default-trigger = "battery-full";
+			qcom,use-blink;
+			qcom,start-idx = <1>;
+			qcom,duty-pcts = [95 95 95 95 95
+					95 95 95 95 95];
+			qcom,pause-lo = <0>;
+			qcom,pause-hi = <0>;
+			qcom,ramp-step-ms = <500>;
+			qcom,lut-flags = <3>;
+			// U2 LED End
 		};
 
 		qcom,rgb_2 {
 			label = "rgb";
-			linux,name = "led:rgb_blue";
+			// U2 LED Begin
+			linux,name = "blue";//"led:rgb_blue";
+			// U2 LED End
 			qcom,mode = "pwm";
 			qcom,pwm-channel = <4>;
 			qcom,pwm-us = <1000>;
 			qcom,max-current = <12>;
 			qcom,id = <5>;
 			status = "disabled";
+			// U2 LED Begin
+			qcom,use-blink;
+			qcom,start-idx = <1>;
+			qcom,duty-pcts = [95 95 95 95 95
+					95 95 95 95 95];
+			qcom,pause-lo = <0>;
+			qcom,pause-hi = <0>;
+			qcom,ramp-step-ms = <500>;
+			qcom,lut-flags = <3>;
+			// U2 LED End
 		};
 	};
 
@@ -103,7 +139,9 @@
 			label = "flash";
 			qcom,id = <2>;
 			linux,name = "led:flash_torch";
-			qcom,current = <200>;
+			// U2 Torch Begin
+			qcom,current = <120>; //200
+			// U2 Torch End
 			qcom,torch-enable;
 		};
 	};

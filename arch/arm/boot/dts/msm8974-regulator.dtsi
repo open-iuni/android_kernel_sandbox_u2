@@ -27,7 +27,9 @@
 		qcom,pull-down-enable = <1>;
 		interrupts = <0x1 0x83 0x2>;
 		interrupt-names = "ocp";
-		qcom,ocp-enable = <1>;
+		// U2 Regulator Begin
+		qcom,ocp-enable = <0>; //1
+		// U2 Regulator End
 		qcom,ocp-max-retries = <10>;
 		qcom,ocp-retry-delay = <30>;
 		qcom,soft-start-enable = <1>;

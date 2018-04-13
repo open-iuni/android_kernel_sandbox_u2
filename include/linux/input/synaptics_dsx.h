@@ -58,6 +58,7 @@ struct synaptics_rmi4_capacitance_button_map {
 struct synaptics_rmi4_platform_data {
 	bool x_flip;
 	bool y_flip;
+	bool regulator_en;
 	bool i2c_pull_up;
 	bool power_down_enable;
 	bool disable_gpios;
@@ -75,7 +76,17 @@ struct synaptics_rmi4_platform_data {
 	unsigned disp_maxx;
 	unsigned disp_maxy;
 	unsigned reset_delay;
+	unsigned en_gpio;
+	unsigned panel_x;
+	unsigned panel_y;
 	const char *fw_image_name;
+	const char *fw_image_name1;
+	const char *fw_image_name2;
+	const char *fw_image_name3;
+	const char *fw_image_name4;
+	const char *fw_image_name5;
+	const char *fw_image_name6;
+	const char *fw_image_name7;
 	int (*gpio_config)(unsigned gpio, bool configure);
 	struct synaptics_rmi4_capacitance_button_map *capacitance_button_map;
 };

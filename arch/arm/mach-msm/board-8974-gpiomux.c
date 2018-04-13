@@ -830,6 +830,16 @@ static struct msm_gpiomux_config msm_sensor_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &gpio_suspend_config[0],
 		},
 	},
+// U2 Camera GPIO Control Begin
+#ifdef CONFIG_GN_CAMERA_SUPPORT
+	{
+		.gpio = 23, /* FLASH_LED_EN */
+		.settings = {
+			[GPIOMUX_ACTIVE]    = &cam_settings[3],   //0
+			[GPIOMUX_SUSPENDED] = &gpio_suspend_config[1],
+		},
+	},
+#else
 	{
 		.gpio = 23, /* FLASH_LED_EN */
 		.settings = {
@@ -837,6 +847,8 @@ static struct msm_gpiomux_config msm_sensor_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &gpio_suspend_config[1],
 		},
 	},
+#endif
+// U2 Camera GPIO Control End
 	{
 		.gpio = 24, /* FLASH_LED_NOW */
 		.settings = {
@@ -851,6 +863,16 @@ static struct msm_gpiomux_config msm_sensor_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &gpio_suspend_config[1],
 		},
 	},
+// U2 Camera GPIO Control Begin
+#ifdef CONFIG_GN_CAMERA_SUPPORT
+		{
+		.gpio = 26, /* WEBCAM2_RESET_N */
+		.settings = {
+			[GPIOMUX_ACTIVE]    = &cam_settings[3],
+			[GPIOMUX_SUSPENDED] = &gpio_suspend_config[1],
+		},
+	},
+#else
 	{
 		.gpio = 26, /* CAM_IRQ */
 		.settings = {
@@ -858,6 +880,8 @@ static struct msm_gpiomux_config msm_sensor_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &cam_settings[1],
 		},
 	},
+#endif
+// U2 Camera GPIO Control End
 	{
 		.gpio = 27, /* OIS_SYNC */
 		.settings = {

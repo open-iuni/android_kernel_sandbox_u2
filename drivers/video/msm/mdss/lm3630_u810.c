@@ -18,8 +18,10 @@
 #include <linux/clk.h>
 #include "../../../staging/android/timed_output.h"
 #include <linux/of_gpio.h>
+#include "mdss_dsi.h"
 
-bool sleep = 1;
+int lcd_vendor;
+static bool sleep = 1;
 static struct i2c_client *i2c_client = NULL;
 #include <linux/leds.h>
 #define LCD_CABC_MAX_NUM 1
@@ -86,8 +88,15 @@ int cabc_change = 0;
 void set_backlight_lm3630(unsigned int level)
 {
 	u8 para;
-
-	para = (u8) (level); //for sharp lcd ,
+	if(lcd_vendor == 1)
+		para = (u8) ((level*17)/20);
+	else if(lcd_vendor == 2)
+		para = (u8) ((level*3)/4);
+	else
+	{	
+		printk("%s:lcd detect error\n",__func__);
+		return;
+	}
 	printk("mdss:backlight level = %d\n",para);
 	if(para == 0)
 	{
@@ -133,8 +142,8 @@ void set_backlight_lm3630(unsigned int level)
 			}else {
 				if(0 == cabc_change)
 				{
-					lm3630_write_reg(0x01,0x09);// 0x09 for cabc
 					cabc_change = 1;
+					lm3630_write_reg(0x01,0x09);// 0x09 for cabc
 				}
 			}
 
@@ -166,6 +175,16 @@ static int __devinit lm3630_probe(struct i2c_client *client,
         	return err;
     	}
 
+
+	if(strstr(saved_command_line, "jdi") != NULL)
+	{
+		lcd_vendor = 1;
+	}else if(strstr(saved_command_line, "sharp") != NULL)
+	{
+		lcd_vendor = 2;
+	}
+	else
+		lcd_vendor = 0;
 	if (led_classdev_register(&client->dev, &backlight_cabc))
 		pr_err("led_classdev_register failed\n");
     	printk("lm3630 probe done\n");
@@ -201,6 +220,7 @@ static struct i2c_driver lm3630_driver = {
 
 static int __init lm3630_init(void)
 {
+	printk("lm3630 registered on i2c!\n");
 	return i2c_add_driver(&lm3630_driver);
 }
 

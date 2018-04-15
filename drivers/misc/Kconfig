@@ -673,7 +673,7 @@ config UID_CPUTIME
 
 config GN_DEVICE_TYPE_CHECK
 	tristate "Gionee Device Check"
-	default n
+	default y
 
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"

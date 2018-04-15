@@ -1308,7 +1308,7 @@ int mdss_dsi_panel_init(struct device_node *node,
 
 	pr_debug("%s:%d\n", __func__, __LINE__);
 /* IUNI U2 LCD Compatibility Support Begin */
-	#ifdef CONFIG_GN_Q_BSP_LCD_COMPATIBILITY_SUPPORT
+	#ifdef CONFIG_GN_DEVICE_TYPE_CHECK
 	{
 		int lcd_adc0_gpio, lcd_adc1_gpio;
 

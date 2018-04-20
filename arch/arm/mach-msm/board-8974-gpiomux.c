@@ -650,6 +650,20 @@ static struct msm_gpiomux_config msm_blsp_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &gpio_i2c_config,
 		},
 	},
+//U2 Add GPIO 29 & 30 Begin
+	{
+		.gpio      = 29,		/* BLSP6 QUP I2C_DAT */
+		.settings = {
+			[GPIOMUX_SUSPENDED] = &gpio_i2c_config,
+		},
+	},
+	{
+		.gpio      = 30,		/* BLSP6 QUP I2C_CLK */
+		.settings = {
+			[GPIOMUX_SUSPENDED] = &gpio_i2c_config,
+		},
+	},
+//U2 Add GPIO 29 & 30 End
 	{
 		.gpio      = 4,			/* BLSP2 UART TX */
 		.settings = {
@@ -674,13 +688,16 @@ static struct msm_gpiomux_config msm_blsp_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &gpio_i2c_config,
 		},
 	},
+//U2 Change GPIOMUX_ACTIVE to CS1 Begin
 	{
 		.gpio      = 53,		/* BLSP2 QUP4 SPI_DATA_MOSI */
 		.settings = {
-			[GPIOMUX_ACTIVE] = &gpio_spi_config,
+			//[GPIOMUX_ACTIVE] = &gpio_spi_config,
+			[GPIOMUX_ACTIVE] = &gpio_spi_cs1_config,
 			[GPIOMUX_SUSPENDED] = &gpio_suspend_config[1],
 		},
 	},
+//U2 Change GPIOMUX_ACTIVE to CS1 End
 	{
 		.gpio      = 54,		/* BLSP2 QUP4 SPI_DATA_MISO */
 		.settings = {
@@ -695,13 +712,15 @@ static struct msm_gpiomux_config msm_blsp_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &gpio_suspend_config[0],
 		},
 	},
+//U2 Disable GPIOMUX_ACTIVE Begin
 	{
 		.gpio      = 55,		/* BLSP2 QUP4 SPI_CS0_N */
 		.settings = {
-			[GPIOMUX_ACTIVE] = &gpio_spi_config,
+			//[GPIOMUX_ACTIVE] = &gpio_spi_config,
 			[GPIOMUX_SUSPENDED] = &gpio_suspend_config[0],
 		},
 	},
+//U2 Disable GPIOMUX_ACTIVE Begin
 };
 
 static struct msm_gpiomux_config msm8974_slimbus_config[] __initdata = {

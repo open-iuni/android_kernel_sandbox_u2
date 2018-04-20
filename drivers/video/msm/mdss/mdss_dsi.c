@@ -1524,6 +1524,26 @@ int dsi_panel_device_register(struct device_node *pan_node,
 					ctrl_pdata->disp_te_gpio);
 	}
 
+//U2 Add TPS65132 Support Begin
+#ifdef CONFIG_GN_Q_BSP_LCD_TPS65132_SUPPORT
+	ctrl_pdata->tps_en_gpio = of_get_named_gpio(ctrl_pdev->dev.of_node,
+						 "qcom,tps-enable-gpio", 0);
+	if (!gpio_is_valid(ctrl_pdata->tps_en_gpio)) {
+		pr_err("%s:%d, tps enable gpio not specified\n",
+						__func__, __LINE__);
+	} else {
+		rc = gpio_request(ctrl_pdata->tps_en_gpio, "tps_enable");
+		if (rc) {
+			pr_err("request reset gpio failed, rc=%d\n",
+				rc);
+			gpio_free(ctrl_pdata->tps_en_gpio);
+			if (gpio_is_valid(ctrl_pdata->disp_en_gpio))
+				gpio_free(ctrl_pdata->disp_en_gpio);
+			return -ENODEV;
+		}
+	}
+#endif
+//U2 Add TPS65132 Support End
 	ctrl_pdata->rst_gpio = of_get_named_gpio(ctrl_pdev->dev.of_node,
 			 "qcom,platform-reset-gpio", 0);
 	if (!gpio_is_valid(ctrl_pdata->rst_gpio))

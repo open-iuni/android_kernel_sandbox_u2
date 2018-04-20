@@ -194,6 +194,15 @@
 			ti,enable_gpio = <&msmgpio 33 0x00>;
 		};
 		// U2 Backlight End
+		// U2 Regulator Begin
+		tps65132@3e {
+			status = "ok";
+			reg = <0x3e>;
+			compatible = "ti,tps65132";
+			label = "tps65132";
+			ti,enable_gpio = <&msmgpio 58 0x00>;
+		};
+		// U2 Regulator End
 	};
 
 	gpio_keys {

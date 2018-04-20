@@ -296,6 +296,11 @@ struct mdss_dsi_ctrl_pdata {
 	struct mdss_hw *dsi_hw;
 	struct mdss_panel_recovery *recovery;
 
+//U2 Add TPS65132 Support Begin
+#ifdef CONFIG_GN_Q_BSP_LCD_TPS65132_SUPPORT
+	int tps_en_gpio;
+#endif
+//U2 Add TPS65132 Support End
 	struct dsi_panel_cmds on_cmds;
 	struct dsi_panel_cmds off_cmds;
 	struct dsi_panel_cmds status_cmds;
@@ -386,10 +391,16 @@ int mdss_dsi_panel_init(struct device_node *node,
 		struct mdss_dsi_ctrl_pdata *ctrl_pdata,
 		bool cmd_cfg_cont_splash);
 /*Gionee xiangzhong 2013-12-16 add for lm3630 backlight begin*/
-#ifdef CONFIG_GN_Q_BSP_BACKLIGHT_LM3630_SUPPORT 
+#ifdef CONFIG_GN_Q_BSP_BACKLIGHT_LM3630_SUPPORT
 void set_backlight_lm3630(unsigned int level);
 #endif
 /*Gionee xiangzhong 2013-12-16 add for lm3630 backlight begin*/
+//U2 Add TPS65132 Support Begin
+#ifdef CONFIG_GN_Q_BSP_LCD_TPS65132_SUPPORT
+void set_vol_tps65132_positive(void);
+void set_vol_tps65132_nagetive(void);
+#endif
+//U2 Add TPS65132 Support End
 int mdss_panel_get_dst_fmt(u32 bpp, char mipi_mode, u32 pixel_packing,
 				char *dst_format);
 

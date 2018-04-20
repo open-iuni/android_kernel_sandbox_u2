@@ -46,4 +46,6 @@ obj-$(CONFIG_FB_MSM_MDSS) += mdss_fb.o
 obj-$(CONFIG_FB_MSM_MDSS_DSI_CTRL_STATUS) += mdss_dsi_status.o
 
 # Gionee drivers
-obj-$(CONFIG_GN_BACKLIGHT_LM3630_U810) += lm3630_u810.o
+#obj-$(CONFIG_GN_BACKLIGHT_LM3630_U810) += lm3630_u810.o
+obj-y += tps65132.o
+obj-y += lm3630.o

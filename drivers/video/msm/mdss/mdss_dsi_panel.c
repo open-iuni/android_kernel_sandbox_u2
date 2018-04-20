@@ -216,8 +216,12 @@ int mdss_dsi_panel_reset(struct mdss_panel_data *pdata, int enable)
 {
 	struct mdss_dsi_ctrl_pdata *ctrl_pdata = NULL;
 	struct mdss_panel_info *pinfo = NULL;
+//U2 LCD Reset Support Begin
+#ifdef CONFIG_GN_Q_BSP_LCD_RESET_SUPPORT
+#else
 	int i, rc = 0;
-
+#endif
+//U2 LCD Reset Support End
 	if (pdata == NULL) {
 		pr_err("%s: Invalid input data\n", __func__);
 		return -EINVAL;
@@ -247,15 +251,37 @@ int mdss_dsi_panel_reset(struct mdss_panel_data *pdata, int enable)
 			return rc;
 		}
 		if (!pinfo->panel_power_on) {
+//U2 LCD Reset Support Begin
+#ifdef CONFIG_GN_Q_BSP_LCD_RESET_SUPPORT
+		gpio_set_value((ctrl_pdata->rst_gpio), 0);
+		mdelay(3);
+#endif
+//U2 LCD Reset Support End
 			if (gpio_is_valid(ctrl_pdata->disp_en_gpio))
 				gpio_set_value((ctrl_pdata->disp_en_gpio), 1);
+//U2 Add TPS65132 Support Begin
+#ifdef CONFIG_GN_Q_BSP_LCD_TPS65132_SUPPORT
+		set_vol_tps65132_positive();
+		mdelay(1);
+		if (gpio_is_valid(ctrl_pdata->tps_en_gpio))
+		{
+			gpio_set_value((ctrl_pdata->tps_en_gpio), 1);
+			set_vol_tps65132_nagetive();
+		}
+#endif
+//U2 Add TPS65132 Support End
 
+//U2 LCD Reset Support Begin
+#ifdef CONFIG_GN_Q_BSP_LCD_RESET_SUPPORT
+#else
 			for (i = 0; i < pdata->panel_info.rst_seq_len; ++i) {
 				gpio_set_value((ctrl_pdata->rst_gpio),
 					pdata->panel_info.rst_seq[i]);
 				if (pdata->panel_info.rst_seq[++i])
 					usleep(pinfo->rst_seq[i] * 1000);
 			}
+#endif
+//U2 Add TPS65132 Support End
 		}
 
 		if (gpio_is_valid(ctrl_pdata->mode_gpio)) {
@@ -270,18 +296,42 @@ int mdss_dsi_panel_reset(struct mdss_panel_data *pdata, int enable)
 			ctrl_pdata->ctrl_state &= ~CTRL_STATE_PANEL_INIT;
 			pr_debug("%s: Reset panel done\n", __func__);
 		}
+//U2 LCD Reset Support Begin
+#ifdef CONFIG_GN_Q_BSP_LCD_RESET_SUPPORT
+		mdelay(1);
+		gpio_set_value((ctrl_pdata->rst_gpio), 1);
+		mdelay(3);
+#endif
+//U2 Add TPS65132 Support End
 	} else {
 		if (gpio_is_valid(ctrl_pdata->disp_en_gpio)) {
 			gpio_set_value((ctrl_pdata->disp_en_gpio), 0);
 			gpio_free(ctrl_pdata->disp_en_gpio);
 		}
 		gpio_set_value((ctrl_pdata->rst_gpio), 0);
+//U2 Add TPS65132 Support Begin
+#ifdef CONFIG_GN_Q_BSP_LCD_TPS65132_SUPPORT
+		mdelay(10); // add for IC request
+		if (gpio_is_valid(ctrl_pdata->tps_en_gpio))
+			gpio_set_value((ctrl_pdata->tps_en_gpio), 0);
+		mdelay(1);
+#endif
+//U2 Add TPS65132 Support End
 		gpio_free(ctrl_pdata->rst_gpio);
 		if (gpio_is_valid(ctrl_pdata->mode_gpio))
 			gpio_free(ctrl_pdata->mode_gpio);
 	}
 	return rc;
 }
+
+//U2 Add LM3630 Support Begin
+#ifdef CONFIG_GN_Q_BSP_BACKLIGHT_LM3630_SUPPORT
+void mdss_dsi_panel_lm3630(unsigned int bl_level)
+{
+	set_backlight_lm3630(bl_level);
+}
+#endif
+//U2 Add LM3630 Support End
 
 static char caset[] = {0x2a, 0x00, 0x00, 0x03, 0x00};	/* DTYPE_DCS_LWRITE */
 static char paset[] = {0x2b, 0x00, 0x00, 0x05, 0x00};	/* DTYPE_DCS_LWRITE */
@@ -337,14 +387,6 @@ static int mdss_dsi_panel_partial_update(struct mdss_panel_data *pdata)
 
 	return rc;
 }
-/*Gionee xiangzhong 2013-12-16 add for lm3630 backlight begin*/
-#ifdef CONFIG_GN_Q_BSP_BACKLIGHT_LM3630_SUPPORT
-void mdss_dsi_panel_lm3630(unsigned int bl_level)
-{
-	set_backlight_lm3630(bl_level);
-}
-#endif
-/*Gionee xiangzhong 2013-12-16 add for lm3630 backlight end*/
 
 static void mdss_dsi_panel_switch_mode(struct mdss_panel_data *pdata,
 							int mode)
@@ -1293,7 +1335,7 @@ int mdss_dsi_panel_init(struct device_node *node,
 	static const char *panel_name;
 	struct mdss_panel_info *pinfo;
 /*Gionee xiangzhong 2012-09-19 add for device tpye check begin*/
-#if defined(CONFIG_GN_DEVICE_TYPE_CHECK) 
+#ifdef CONFIG_GN_DEVICE_TYPE_CHECK
 	static const char *device_panel_name;
 	struct gn_device_info gn_mydev_info;
 	gn_mydev_info.gn_dev_type = GN_DEVICE_TYPE_LCD;
@@ -1308,7 +1350,7 @@ int mdss_dsi_panel_init(struct device_node *node,
 
 	pr_debug("%s:%d\n", __func__, __LINE__);
 /* IUNI U2 LCD Compatibility Support Begin */
-	#ifdef CONFIG_GN_DEVICE_TYPE_CHECK
+	#ifdef CONFIG_GN_Q_BSP_LCD_COMPATIBILITY_SUPPORT
 	{
 		int lcd_adc0_gpio, lcd_adc1_gpio;
 
@@ -1362,10 +1404,14 @@ int mdss_dsi_panel_init(struct device_node *node,
 
 /*Gionee xiangzhong 2012-09-19 add for device tpye check begin */ 
 #if defined(CONFIG_GN_DEVICE_TYPE_CHECK) 
-	if(strstr(panel_name, "sharp"))
-		device_panel_name = "sharp_r63417";
+	if(strstr(panel_name, "tianma"))
+		device_panel_name = "tianma_r63421";
 	else if(strstr(panel_name, "jdi"))
 		device_panel_name = "jdi_r63417";
+	else if(strstr(panel_name, "truly"))
+		device_panel_name = "truly_r63417";
+	else if(strstr(panel_name, "sharp"))
+		device_panel_name = "sharp_r63417";
 	else 
 		device_panel_name = "unknown lcd";
 	strcpy(gn_mydev_info.name, device_panel_name);
